@@ -152,10 +152,10 @@ class SupabaseService {
     }
 
     try {
-      // Test connection by trying to read from a system table
+      // Test connection by trying to read from users table
       const { data, error } = await this.client
         .from('users')
-        .select('count(*)')
+        .select('id')
         .limit(1);
 
       if (error) {
