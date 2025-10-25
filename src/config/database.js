@@ -13,22 +13,32 @@ class DatabaseService {
     if (!connectionString) {
       console.error('❌ No database connection string found');
       console.log('💡 Set DATABASE_URL or POSTGRES_URL environment variable');
+      console.log('🚀 Server will start without database connection');
       return;
     }
 
-    this.pool = new Pool({
-      connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
+    try {
+      this.pool = new Pool({
+        connectionString,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000, // Increased timeout
+      });
 
-    this.pool.on('error', (err) => {
-      console.error('❌ Database pool error:', err);
-    });
+      this.pool.on('error', (err) => {
+        console.error('❌ Database pool error:', err.message);
+      });
 
-    console.log('🔗 Database connection pool initialized');
+      this.pool.on('connect', () => {
+        console.log('✅ Database client connected');
+      });
+
+      console.log('🔗 Database connection pool initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize database pool:', error.message);
+      console.log('🚀 Server will start without database connection');
+    }
   }
 
   async query(text, params) {

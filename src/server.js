@@ -157,23 +157,28 @@ app.use((error, req, res, next) => {
 // Database connection and server startup
 async function startServer() {
   try {
-    // Test database connection
-    const healthCheck = await DatabaseService.healthCheck();
-    console.log('Database health check:', healthCheck);
-    
-    if (healthCheck.status === 'healthy') {
-      console.log('✅ Database connected successfully');
-    } else {
-      console.log('⚠️  Database connection issues, but starting server anyway');
+    // Test database connection (non-blocking)
+    try {
+      const healthCheck = await DatabaseService.healthCheck();
+      console.log('Database health check:', healthCheck);
+      
+      if (healthCheck.status === 'healthy') {
+        console.log('✅ Database connected successfully');
+      } else {
+        console.log('⚠️  Database connection issues, but starting server anyway');
+      }
+    } catch (dbError) {
+      console.log('⚠️  Database connection failed, but starting server anyway:', dbError.message);
     }
     
-    // Start server
+    // Start server (always start, regardless of database status)
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 WID Uganda Backend API running on port ${PORT}`);
       console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 CORS enabled for frontend domains`);
       console.log(`🔒 Security middleware active`);
       console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🗄️  Database status will be checked at runtime`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
