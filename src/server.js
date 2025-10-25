@@ -17,6 +17,7 @@ const conversationsRoutes = require('./routes/conversations');
 const verificationRoutes = require('./routes/verification');
 const uploadsRoutes = require('./routes/uploads');
 const healthRoutes = require('./routes/health');
+const testRoutes = require('./routes/test');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -76,6 +77,8 @@ app.use('/api/projects', projectsRoutes);
 app.use('/api/conversations', conversationsRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/uploads', uploadsRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/health', healthRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -94,6 +97,7 @@ app.get('/', (req, res) => {
       conversations: '/api/conversations',
       verification: '/api/verification',
       uploads: '/api/uploads',
+      test: '/api/test',
     },
   });
 });
