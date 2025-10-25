@@ -1,5 +1,6 @@
 const express = require('express');
 const { DatabaseService } = require('../config/database');
+const { supabaseService } = require('../config/supabase');
 
 const router = express.Router();
 
@@ -16,21 +17,33 @@ router.get('/', async (req, res) => {
         timestamp: new Date().toISOString(),
       };
     }
+
+    let supabaseHealth;
+    try {
+      supabaseHealth = await supabaseService.healthCheck();
+    } catch (supabaseError) {
+      supabaseHealth = {
+        status: 'unavailable',
+        message: supabaseError.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
     
     const healthStatus = {
-      status: 'healthy', // Always healthy for Railway health check
+      status: 'healthy', // Always healthy for hosting platform health check
       timestamp: new Date().toISOString(),
       service: 'WID Uganda Backend API',
       version: '1.0.0',
       environment: process.env.NODE_ENV || 'development',
       database: dbHealth,
+      supabase: supabaseHealth,
       uptime: process.uptime(),
       memory: {
         used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100,
         total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024 * 100) / 100,
       },
       // Add overall system status for monitoring
-      systemStatus: dbHealth.status === 'healthy' ? 'fully_operational' : 'degraded_database',
+      systemStatus: getSystemStatus(dbHealth, supabaseHealth),
     };
 
     // Always return 200 for Railway health check compatibility
@@ -69,5 +82,20 @@ router.get('/ready', async (req, res) => {
 router.get('/live', (req, res) => {
   res.json({ status: 'alive' });
 });
+
+// Helper function to determine overall system status
+function getSystemStatus(dbHealth, supabaseHealth) {
+  if (dbHealth.status === 'healthy' && supabaseHealth.status === 'healthy') {
+    return 'fully_operational';
+  } else if (supabaseHealth.status === 'healthy') {
+    return 'supabase_only';
+  } else if (dbHealth.status === 'healthy') {
+    return 'database_only';
+  } else if (supabaseHealth.status === 'unavailable') {
+    return 'postgresql_only';
+  } else {
+    return 'degraded';
+  }
+}
 
 module.exports = router;
