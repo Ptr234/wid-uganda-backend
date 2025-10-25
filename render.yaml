@@ -1,0 +1,41 @@
+# Render Blueprint for WID Uganda Backend
+# This file configures automatic deployment on Render
+
+services:
+  - type: web
+    name: wid-uganda-backend
+    env: node
+    repo: https://github.com/Ptr234/wid-uganda-backend.git
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        value: wid-uganda-super-secure-jwt-secret-for-production-2024-platform
+      - key: FRONTEND_URL
+        value: https://wid-uganda-platform-4oh57u1g1-ptr234s-projects.vercel.app
+      - key: SUPABASE_URL
+        value: https://zmxyjaczsgrvtvonqtlu.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpteHlqYWN6c2dydnR2b25xdGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyNDYsImV4cCI6MjA3Njk1NjI0Nn0.7ehqMr7qOig69scbhwN5HrH2iLcjoXfq4BUt3WdeDsk
+      - key: SUPABASE_SERVICE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpteHlqYWN6c2dydnR2b25xdGx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTM4MDI0NiwiZXhwIjoyMDc2OTU2MjQ2fQ.4q2e68DqBjiMMjFBUEo65ae3jyidMwdnlWtpQN_ehSw
+      - key: STORAGE_PROVIDER
+        value: supabase
+      - key: SUPABASE_STORAGE_BUCKET
+        value: wid-uploads
+      - key: ENABLE_RATE_LIMITING
+        value: true
+      - key: ENABLE_COMPRESSION
+        value: true
+      - key: ENABLE_CORS
+        value: true
+      - key: ENABLE_SUPABASE_FEATURES
+        value: true
